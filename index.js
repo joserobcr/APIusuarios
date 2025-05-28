@@ -18,7 +18,7 @@ const swaggerDocument = {
   },
   servers: [
     {
-      url: 'http://localhost:3000',
+      url: 'http://apiusuarios-production-c528.up.railway.app',
       description: 'Servidor local'
     }
   ],
