@@ -109,10 +109,10 @@ function modificarUsuario(req, res) {
 
 // Eliminar usuario
 function eliminarUsuario(req, res) {
-    const idUsuario = req.params.id;
+    const id_usuario = req.params.id;
     const consulta = `DELETE FROM usuarios WHERE idUsuario = ?`;
 
-    connection.query(consulta, [idUsuario], (err, result) => {
+    connection.query(consulta, [id_usuario], (err, result) => {
         if (err) {
             return res.status(500).json({ error: "Error al eliminar el usuario", detalle: err.message });
         }
@@ -123,7 +123,7 @@ function eliminarUsuario(req, res) {
 
         const respuesta = halson({
             mensaje: "Usuario eliminado correctamente",
-            idUsuario
+            id_usuario
         });
 
         res.json(respuesta);
