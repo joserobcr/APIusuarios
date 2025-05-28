@@ -3,20 +3,15 @@ const router = express.Router();
 const hal = require('hal');
 const halson = require('halson');
 const usuarioController = require('../Controller/usuarioController.js');
-
-router.get('/:id', (req, res, next) => {
-    req.query.idUsuario = req.params.id;
-    usuarioController.consultarUsuario(req, res, next);
-});
-router.get('/', usuarioController.consultarUsuario);
-
-//router.post('/', usuarioController.agregarUsuario); 
-
 const { check, validationResult } = require('express-validator');
 
+// RUTA para consultar UN usuario por ID (ej: /usuarios/1)
+router.get('/:id', usuarioController.consultarUsuarioPorId);
 
+// RUTA para consultar TODOS los usuarios (ej: /usuarios)
+router.get('/', usuarioController.consultarUsuario);
 
-// Validaciones para la ruta de creación de usuario
+// Validaciones para la creación de usuario
 router.post(
     '/',
     [
@@ -34,10 +29,10 @@ router.post(
     }
 );
 
+// RUTA para modificar un usuario
 router.put('/:id', usuarioController.modificarUsuario);
 
-// DELETE - Eliminar usuario por ID
+// RUTA para eliminar un usuario
 router.delete('/:id', usuarioController.eliminarUsuario);
-
 
 module.exports = router;

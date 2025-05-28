@@ -11,67 +11,69 @@ const connection = mysql.createConnection({
 
 const hal = require('hal'); 
 
-function consultarUsuario(req, res, next) {
-    const idUsuario = req.query.idUsuario;
+function consultarUsuario(req, res) {
+    const consulta = 'SELECT * FROM usuarios';
 
-    let consulta = '';
-    let valores = [];
-
-    if (idUsuario !== undefined && idUsuario !== null && idUsuario !== '') {
-        consulta = 'SELECT * FROM usuarios WHERE idUsuario = ?';
-        valores.push(idUsuario);
-    } else {
-        consulta = 'SELECT * FROM usuarios';
-    }
-
-    connection.query(consulta, valores, function (err, results) {
+    connection.query(consulta, [], function (err, results) {
         if (err) {
             return res.status(500).json({ error: 'Error en el servidor', detalle: err.message });
         }
 
-        if (results.length > 0) {
-            if (idUsuario) {
-                // Devuelve solo un usuario
-                const user = results[0];
-                const estadoMensaje = user.activo ? "El usuario está activo" : "El usuario está inactivo";
-
-                const usuario = halson({
-                    idUsuario: user.idUsuario,
-                    nombre: user.nombre,
-                    correo: user.correo,
-                    rol: user.rol,
-                    estado: estadoMensaje
-                })
-                .addLink('self', `/usuarios/${user.idUsuario}`)
-                .addLink('editar', `/usuarios/${user.idUsuario}`)
-                .addLink('eliminar', `/usuarios/${user.idUsuario}`);
-
-                return res.json(usuario);
-            } else {
-                // Devuelve todos los usuarios
-                const usuarios = results.map(user => {
-                    const estadoMensaje = user.activo ? "El usuario está activo" : "El usuario está inactivo";
-
-                    return halson({
-                        idUsuario: user.idUsuario,
-                        nombre: user.nombre,
-                        correo: user.correo,
-                        rol: user.rol,
-                        estado: estadoMensaje
-                    })
-                    .addLink('self', `/usuarios/${user.idUsuario}`)
-                    .addLink('editar', `/usuarios/${user.idUsuario}`)
-                    .addLink('eliminar', `/usuarios/${user.idUsuario}`);
-                });
-
-                return res.json({ usuarios });
-            }
-        } else {
-            return res.status(404).json({ mensaje: 'No se encontraron resultados' });
+        if (results.length === 0) {
+            return res.status(404).json({ mensaje: 'No se encontraron usuarios' });
         }
+
+        const usuarios = results.map(user => {
+            const estadoMensaje = user.activo ? "El usuario está activo" : "El usuario está inactivo";
+
+            return halson({
+                idUsuario: user.idUsuario,
+                nombre: user.nombre,
+                correo: user.correo,
+                rol: user.rol,
+                estado: estadoMensaje
+            })
+            .addLink('self', `/usuarios/${user.idUsuario}`)
+            .addLink('editar', `/usuarios/${user.idUsuario}`)
+            .addLink('eliminar', `/usuarios/${user.idUsuario}`);
+        });
+
+        return res.json({ usuarios });
     });
 }
 
+
+function consultarUsuarioPorId(req, res) {
+    const idUsuario = req.params.id;
+
+    const consulta = 'SELECT * FROM usuarios WHERE idUsuario = ?';
+
+    connection.query(consulta, [idUsuario], (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: 'Error en el servidor', detalle: err.message });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ mensaje: 'Usuario no encontrado' });
+        }
+
+        const user = results[0];
+        const estadoMensaje = user.activo ? "El usuario está activo" : "El usuario está inactivo";
+
+        const usuario = halson({
+            idUsuario: user.idUsuario,
+            nombre: user.nombre,
+            correo: user.correo,
+            rol: user.rol,
+            estado: estadoMensaje
+        })
+        .addLink('self', `/usuarios/${user.idUsuario}`)
+        .addLink('editar', `/usuarios/${user.idUsuario}`)
+        .addLink('eliminar', `/usuarios/${user.idUsuario}`);
+
+        res.json(usuario);
+    });
+}
 
 
 function agregarUsuario(req, res) {
@@ -155,6 +157,7 @@ function eliminarUsuario(req, res) {
 
 module.exports = {
     consultarUsuario,
+    consultarUsuarioPorId,
     agregarUsuario,
     modificarUsuario,
     eliminarUsuario
