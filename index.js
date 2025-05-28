@@ -45,7 +45,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: "http://localhost:3001",
+        url: "http://apiusuarios-production-c528.up.railway.app",
         description: "Servidor local de desarrollo"
       }
     ],
@@ -284,7 +284,7 @@ const swaggerOptions = {
 
 
 const swaggerDocs = swaggerjsdoc(swaggerOptions);
-//app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 app.get('/api-docs.json', (req, res) => { res.json(swaggerDocs) });
 
