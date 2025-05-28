@@ -53,7 +53,7 @@ exports.modificarUsuario = async (req, res) => {
   const { nombre, correo, contrasena, rol } = req.body;
   try {
     const [resultado] = await db.query(
-      'UPDATE usuarios SET nombre = ?, correo = ?, contrasena = ?, rol = ? WHERE id = ?',
+      'UPDATE usuarios SET nombre = ?, correo = ?, contrasena = ?, rol = ? WHERE id_usuario = ?',
       [nombre, correo, contrasena, rol, id]
     );
     if (resultado.affectedRows === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
@@ -66,7 +66,7 @@ exports.modificarUsuario = async (req, res) => {
 exports.eliminarUsuario = async (req, res) => {
   const { id } = req.params;
   try {
-    const [resultado] = await db.query('DELETE FROM usuarios WHERE id = ?', [id]);
+    const [resultado] = await db.query('DELETE FROM usuarios WHERE id_usuario = ?', [id]);
     if (resultado.affectedRows === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
     res.json({ mensaje: 'Usuario eliminado' });
   } catch (err) {
