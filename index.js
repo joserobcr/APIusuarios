@@ -26,7 +26,7 @@ app.use(express.json({ limit: '1mb' }));
 app.use(express.text({ limit: '1mb' }));
 app.use(xmlparser());
 app.use(cors({
-  origin: 'http://apiusuarios-production-c528.up.railway.app',
+  origin: 'https://apiusuarios-production-c528.up.railway.app',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -50,7 +50,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: "http://apiusuarios-production-c528.up.railway.app",
+        url: "https://apiusuarios-production-c528.up.railway.app",
         description: "Servidor local de desarrollo"
       }
     ],
