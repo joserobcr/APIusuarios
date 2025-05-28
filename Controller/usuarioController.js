@@ -30,10 +30,10 @@ function consultarUsuario(req, res) {
 
 // Obtener usuario por ID
 function consultarUsuarioPorId(req, res) {
-    const idUsuario = req.params.id;
+    const id_usuario = req.params.id;
     const consulta = 'SELECT * FROM usuarios WHERE idUsuario = ?';
 
-    connection.query(consulta, [idUsuario], (err, results) => {
+    connection.query(consulta, [id_usuario], (err, results) => {
         if (err) {
             return res.status(500).json({ error: 'Error en el servidor', detalle: err.message });
         }

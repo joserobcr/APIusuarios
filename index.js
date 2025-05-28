@@ -83,7 +83,7 @@ const swaggerOptions = {
                             items: {
                               type: "object",
                               properties: {
-                                idUsuario: { type: "integer", example: 1 },
+                                id_usuario: { type: "integer", example: 1 },
                                 nombre: { type: "string", example: "Juan Perez" },
                                 correo: { type: "string", example: "juan@mail.com" },
                                 contrasena: { type: "string", example: "********" },
