@@ -9,12 +9,11 @@ const connection = mysql.createConnection({
     database: process.env.DB_NAME,
 });
 
-const hal = require('hal'); 
-
+// Obtener todos los usuarios
 function consultarUsuario(req, res) {
     const consulta = 'SELECT * FROM usuarios';
 
-    connection.query(consulta, [], function (err, results) {
+    connection.query(consulta, [], (err, results) => {
         if (err) {
             return res.status(500).json({ error: 'Error en el servidor', detalle: err.message });
         }
@@ -42,10 +41,9 @@ function consultarUsuario(req, res) {
     });
 }
 
-
+// Obtener usuario por ID
 function consultarUsuarioPorId(req, res) {
     const idUsuario = req.params.id;
-
     const consulta = 'SELECT * FROM usuarios WHERE idUsuario = ?';
 
     connection.query(consulta, [idUsuario], (err, results) => {
@@ -75,37 +73,37 @@ function consultarUsuarioPorId(req, res) {
     });
 }
 
-
+// Agregar nuevo usuario
 function agregarUsuario(req, res) {
     const { nombre, correo, contrasena, rol, activo } = req.body;
 
-    if (!nombre || !correo || !contrasena || !rol /*|| /*activo === undefined*/) {
+    if (!nombre || !correo || !contrasena || !rol) {
         return res.status(400).json({ error: "Todos los campos son obligatorios, incluyendo el estado activo/inactivo." });
     }
-    
-    const consulta = `INSERT INTO usuarios (nombre, correo, contrasena, rol) VALUES (?, ?, ?, ?)`;
 
-    connection.query(consulta, [nombre, correo, contrasena, rol /*activo*/], (err, results) => {
+    const consulta = `INSERT INTO usuarios (nombre, correo, contrasena, rol, activo) VALUES (?, ?, ?, ?, ?)`;
+
+    connection.query(consulta, [nombre, correo, contrasena, rol, activo], (err, results) => {
         if (err) {
-            console.log(err.message);
-            return res.status(500).json({ error: "Error en el servidor" });
+            return res.status(500).json({ error: "Error en el servidor", detalle: err.message });
         }
 
-        let estadoMensaje = activo ? "El usuario está activo" : "El usuario está inactivo";
+        const estadoMensaje = activo ? "El usuario está activo" : "El usuario está inactivo";
 
         const usuario = halson({
             mensaje: "Usuario creado exitosamente",
-            id_usuario: results.insertId,
+            idUsuario: results.insertId,
             estado: estadoMensaje
         })
-        .addLink('self', `/usuarios`)
-        .addLink('editar', `/usuarios`)
-        .addLink('eliminar', `/usuarios`);
+        .addLink('self', `/usuarios/${results.insertId}`)
+        .addLink('editar', `/usuarios/${results.insertId}`)
+        .addLink('eliminar', `/usuarios/${results.insertId}`);
 
-        res.json(usuario);
+        res.status(201).json(usuario);
     });
 }
 
+// Modificar usuario existente
 function modificarUsuario(req, res) {
     const idUsuario = req.params.id;
     const { nombre, correo, contrasena, rol, activo } = req.body;
@@ -123,7 +121,7 @@ function modificarUsuario(req, res) {
 
         const respuesta = halson({
             mensaje: "Usuario actualizado correctamente",
-            idUsuario: idUsuario
+            idUsuario
         })
         .addLink('self', `/usuarios/${idUsuario}`);
 
@@ -131,9 +129,9 @@ function modificarUsuario(req, res) {
     });
 }
 
+// Eliminar usuario
 function eliminarUsuario(req, res) {
     const idUsuario = req.params.id;
-
     const consulta = `DELETE FROM usuarios WHERE idUsuario = ?`;
 
     connection.query(consulta, [idUsuario], (err, result) => {
@@ -147,13 +145,12 @@ function eliminarUsuario(req, res) {
 
         const respuesta = halson({
             mensaje: "Usuario eliminado correctamente",
-            idUsuario: idUsuario
+            idUsuario
         });
 
         res.json(respuesta);
     });
 }
-
 
 module.exports = {
     consultarUsuario,
