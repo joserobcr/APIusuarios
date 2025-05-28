@@ -4,12 +4,11 @@ const hal = require('hal');
 const halson = require('halson');
 const usuarioController = require('../Controller/usuarioController.js');
 
-
-router.get('/', usuarioController.consultarUsuario);
 router.get('/:id', (req, res, next) => {
     req.query.idUsuario = req.params.id;
     usuarioController.consultarUsuario(req, res, next);
 });
+router.get('/', usuarioController.consultarUsuario);
 
 //router.post('/', usuarioController.agregarUsuario); 
 
