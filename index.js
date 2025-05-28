@@ -56,8 +56,9 @@ const swaggerOptions = {
     ],
     paths: {
       "/usuarios": {
+        tags: ["Usuarios"],
         get: {
-          tags: ["Usuarios"],
+          
           summary: "Obtener todos los usuarios o uno específico",
           description: "Retorna todos los usuarios si no se especifica un ID, o uno solo si se proporciona.",
           parameters: [
