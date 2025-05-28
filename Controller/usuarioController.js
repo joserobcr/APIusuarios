@@ -28,29 +28,48 @@ function consultarUsuario(req, res, next) {
         }
 
         if (results.length > 0) {
-            let usuarios = results.map(user => {
+            if (req.query.idUsuario) {
+                // Solo un usuario esperado
+                const user = results[0];
                 let estadoMensaje = user.activo ? "El usuario está activo" : "El usuario está inactivo";
 
-                return halson({
+                const usuario = halson({
                     idUsuario: user.idUsuario,
                     nombre: user.nombre,
                     correo: user.correo,
                     rol: user.rol,
                     estado: estadoMensaje
                 })
-                .addLink('self', `/usuarios`)
-                .addLink('editar', `/usuarios`)
-                .addLink('eliminar', `/usuarios`);
+                .addLink('self', `/usuarios/${user.idUsuario}`)
+                .addLink('editar', `/usuarios/${user.idUsuario}`)
+                .addLink('eliminar', `/usuarios/${user.idUsuario}`);
 
-                
-            });
+                res.json(usuario);
+            } else {
+                // Lista de usuarios
+                let usuarios = results.map(user => {
+                    let estadoMensaje = user.activo ? "El usuario está activo" : "El usuario está inactivo";
 
-            res.json({ usuarios });
+                    return halson({
+                        idUsuario: user.idUsuario,
+                        nombre: user.nombre,
+                        correo: user.correo,
+                        rol: user.rol,
+                        estado: estadoMensaje
+                    })
+                    .addLink('self', `/usuarios/${user.idUsuario}`)
+                    .addLink('editar', `/usuarios/${user.idUsuario}`)
+                    .addLink('eliminar', `/usuarios/${user.idUsuario}`);
+                });
+
+                res.json({ usuarios });
+            }
         } else {
-            res.json({ mensaje: 'No se encontraron resultados' });
+            res.status(404).json({ mensaje: 'No se encontraron resultados' });
         }
     });
 }
+
 
 function agregarUsuario(req, res) {
     const { nombre, correo, contrasena, rol, activo } = req.body;

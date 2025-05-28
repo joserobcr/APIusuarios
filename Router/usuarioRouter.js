@@ -6,6 +6,11 @@ const usuarioController = require('../Controller/usuarioController.js');
 
 
 router.get('/', usuarioController.consultarUsuario);
+router.get('/:id', (req, res, next) => {
+    req.query.idUsuario = req.params.id;
+    usuarioController.consultarUsuario(req, res, next);
+});
+
 //router.post('/', usuarioController.agregarUsuario); 
 
 const { check, validationResult } = require('express-validator');
