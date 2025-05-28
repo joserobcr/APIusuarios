@@ -1,139 +1,100 @@
-require('dotenv').config();
-const mysql = require('mysql2');
-const halson = require('halson');
-
-const connection = mysql.createConnection({
-    host: process.env.DB_HOST, 
-    user: process.env.DB_USER, 
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-});
+const express = require('express');
+const { body, validationResult, param } = require('express-validator');
+const router = express.Router();
+const db = require('../db');
 
 // Obtener todos los usuarios
-function consultarUsuario(req, res) {
-    const consulta = 'SELECT * FROM usuarios';
-
-    connection.query(consulta, [], (err, results) => {
-        if (err) {
-            return res.status(500).json({ error: 'Error en el servidor', detalle: err.message });
-        }
-
-        if (results.length === 0) {
-            return res.status(404).json({ mensaje: 'No se encontraron usuarios' });
-        }
-
-        
-
-        return res.json({ usuarios });
-    });
-}
+router.get('/', async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT * FROM usuarios');
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al obtener usuarios' });
+  }
+});
 
 // Obtener usuario por ID
-function consultarUsuarioPorId(req, res) {
-    const id_usuario = req.params.id;
-    const consulta = 'SELECT * FROM usuarios WHERE idUsuario = ?';
-
-    connection.query(consulta, [id_usuario], (err, results) => {
-        if (err) {
-            return res.status(500).json({ error: 'Error en el servidor', detalle: err.message });
-        }
-
-        if (results.length === 0) {
-            return res.status(404).json({ mensaje: 'Usuario no encontrado' });
-        }
-
-        const user = results[0];
-
-       
-
-        res.json(usuario);
-    });
-}
-
-
-// Agregar nuevo usuario
-function agregarUsuario(req, res) {
-    const { nombre, correo, contrasena, rol, activo } = req.body;
-
-    if (!nombre || !correo || !contrasena || !rol) {
-        return res.status(400).json({ error: "Todos los campos son obligatorios, incluyendo el estado activo/inactivo." });
+router.get('/:id',
+  param('id').isInt().withMessage('ID debe ser un número entero'),
+  async (req, res) => {
+    const errores = validationResult(req);
+    if (!errores.isEmpty()) {
+      return res.status(400).json({ errores: errores.array() });
     }
 
-    const consulta = `INSERT INTO usuarios (nombre, correo, contrasena, rol, activo) VALUES (?, ?, ?, ?, ?)`;
+    const { id } = req.params;
+    try {
+      const [rows] = await db.query('SELECT * FROM usuarios WHERE id = ?', [id]);
+      if (rows.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
+      res.json(rows[0]);
+    } catch (err) {
+      res.status(500).json({ error: 'Error al obtener el usuario' });
+    }
+  }
+);
 
-    connection.query(consulta, [nombre, correo, contrasena, rol, activo], (err, results) => {
-        if (err) {
-            return res.status(500).json({ error: "Error en el servidor", detalle: err.message });
-        }
+// Crear usuario
+router.post('/',
+  body('nombre').isString().notEmpty().withMessage('Nombre requerido'),
+  body('correo').isEmail().withMessage('Correo electrónico no válido'),
+  async (req, res) => {
+    const errores = validationResult(req);
+    if (!errores.isEmpty()) {
+      return res.status(400).json({ errores: errores.array() });
+    }
 
-        const estadoMensaje = activo ? "El usuario está activo" : "El usuario está inactivo";
+    const { nombre, correo } = req.body;
+    try {
+      const [resultado] = await db.query('INSERT INTO usuarios (nombre, correo) VALUES (?, ?)', [nombre, correo]);
+      res.status(201).json({ mensaje: 'Usuario creado', id: resultado.insertId });
+    } catch (err) {
+      res.status(500).json({ error: 'Error al crear usuario' });
+    }
+  }
+);
 
-        const usuario = halson({
-            mensaje: "Usuario creado exitosamente",
-            idUsuario: results.insertId,
-            estado: estadoMensaje
-        })
-        .addLink('self', `/usuarios/${results.insertId}`)
-        .addLink('editar', `/usuarios/${results.insertId}`)
-        .addLink('eliminar', `/usuarios/${results.insertId}`);
+// Actualizar usuario
+router.put('/:id',
+  param('id').isInt().withMessage('ID inválido'),
+  body('nombre').optional().isString().notEmpty().withMessage('Nombre requerido'),
+  body('correo').optional().isEmail().withMessage('Correo no válido'),
+  async (req, res) => {
+    const errores = validationResult(req);
+    if (!errores.isEmpty()) {
+      return res.status(400).json({ errores: errores.array() });
+    }
 
-        res.status(201).json(usuario);
-    });
-}
+    const { id } = req.params;
+    const { nombre, correo } = req.body;
 
-// Modificar usuario existente
-function modificarUsuario(req, res) {
-    const idUsuario = req.params.id;
-    const { nombre, correo, contrasena, rol, activo } = req.body;
-
-    const consulta = `UPDATE usuarios SET nombre = ?, correo = ?, contrasena = ?, rol = ?, activo = ? WHERE idUsuario = ?`;
-
-    connection.query(consulta, [nombre, correo, contrasena, rol, activo, idUsuario], (err, result) => {
-        if (err) {
-            return res.status(500).json({ error: "Error al actualizar el usuario", detalle: err.message });
-        }
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ mensaje: "Usuario no encontrado" });
-        }
-
-        const respuesta = halson({
-            mensaje: "Usuario actualizado correctamente",
-            idUsuario
-        })
-        .addLink('self', `/usuarios/${idUsuario}`);
-
-        res.json(respuesta);
-    });
-}
+    try {
+      const [resultado] = await db.query('UPDATE usuarios SET nombre = ?, correo = ? WHERE id = ?', [nombre, correo, id]);
+      if (resultado.affectedRows === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
+      res.json({ mensaje: 'Usuario actualizado' });
+    } catch (err) {
+      res.status(500).json({ error: 'Error al actualizar usuario' });
+    }
+  }
+);
 
 // Eliminar usuario
-function eliminarUsuario(req, res) {
-    const id_usuario = req.params.id;
-    const consulta = `DELETE FROM usuarios WHERE idUsuario = ?`;
+router.delete('/:id',
+  param('id').isInt().withMessage('ID debe ser un número'),
+  async (req, res) => {
+    const errores = validationResult(req);
+    if (!errores.isEmpty()) {
+      return res.status(400).json({ errores: errores.array() });
+    }
 
-    connection.query(consulta, [id_usuario], (err, result) => {
-        if (err) {
-            return res.status(500).json({ error: "Error al eliminar el usuario", detalle: err.message });
-        }
+    const { id } = req.params;
+    try {
+      const [resultado] = await db.query('DELETE FROM usuarios WHERE id = ?', [id]);
+      if (resultado.affectedRows === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
+      res.json({ mensaje: 'Usuario eliminado' });
+    } catch (err) {
+      res.status(500).json({ error: 'Error al eliminar usuario' });
+    }
+  }
+);
 
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ mensaje: "Usuario no encontrado" });
-        }
-
-        const respuesta = halson({
-            mensaje: "Usuario eliminado correctamente",
-            id_usuario
-        });
-
-        res.json(respuesta);
-    });
-}
-
-module.exports = {
-    consultarUsuario,
-    consultarUsuarioPorId,
-    agregarUsuario,
-    modificarUsuario,
-    eliminarUsuario
-};
+module.exports = router;
