@@ -83,19 +83,12 @@ const swaggerOptions = {
                             items: {
                               type: "object",
                               properties: {
-                                idUsuario: { type: "integer", example: 1 },
+                                id_usuario: { type: "integer", example: 1 },
                                 nombre: { type: "string", example: "Juan Perez" },
                                 correo: { type: "string", example: "juan@mail.com" },
                                 contrasena: { type: "string", example: "********" },
                                 rol: { type: "string", example: "alumno" },
-                                _links: {
-                                  type: "object",
-                                  properties: {
-                                    self: { type: "string", example: "/usuarios/1" },
-                                    editar: { type: "string", example: "/usuarios/1/editar" },
-                                    eliminar: { type: "string", example: "/usuarios/1/eliminar" }
-                                  }
-                                }
+                                
                               }
                             }
                           }
