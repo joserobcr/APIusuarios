@@ -12,14 +12,16 @@ const connection = mysql.createConnection({
 const hal = require('hal'); 
 
 function consultarUsuario(req, res, next) {
+    const idUsuario = req.query.idUsuario;
+
     let consulta = '';
     let valores = [];
 
-    if (!req.query.idUsuario) {
-        consulta = 'SELECT * FROM usuarios';
-    } else {
+    if (idUsuario !== undefined && idUsuario !== null && idUsuario !== '') {
         consulta = 'SELECT * FROM usuarios WHERE idUsuario = ?';
-        valores.push(req.query.idUsuario);
+        valores.push(idUsuario);
+    } else {
+        consulta = 'SELECT * FROM usuarios';
     }
 
     connection.query(consulta, valores, function (err, results) {
@@ -28,10 +30,10 @@ function consultarUsuario(req, res, next) {
         }
 
         if (results.length > 0) {
-            if (req.query.idUsuario) {
-                // Solo un usuario esperado
+            if (idUsuario) {
+                // Devuelve solo un usuario
                 const user = results[0];
-                let estadoMensaje = user.activo ? "El usuario está activo" : "El usuario está inactivo";
+                const estadoMensaje = user.activo ? "El usuario está activo" : "El usuario está inactivo";
 
                 const usuario = halson({
                     idUsuario: user.idUsuario,
@@ -44,11 +46,11 @@ function consultarUsuario(req, res, next) {
                 .addLink('editar', `/usuarios/${user.idUsuario}`)
                 .addLink('eliminar', `/usuarios/${user.idUsuario}`);
 
-                res.json(usuario);
+                return res.json(usuario);
             } else {
-                // Lista de usuarios
-                let usuarios = results.map(user => {
-                    let estadoMensaje = user.activo ? "El usuario está activo" : "El usuario está inactivo";
+                // Devuelve todos los usuarios
+                const usuarios = results.map(user => {
+                    const estadoMensaje = user.activo ? "El usuario está activo" : "El usuario está inactivo";
 
                     return halson({
                         idUsuario: user.idUsuario,
@@ -62,13 +64,14 @@ function consultarUsuario(req, res, next) {
                     .addLink('eliminar', `/usuarios/${user.idUsuario}`);
                 });
 
-                res.json({ usuarios });
+                return res.json({ usuarios });
             }
         } else {
-            res.status(404).json({ mensaje: 'No se encontraron resultados' });
+            return res.status(404).json({ mensaje: 'No se encontraron resultados' });
         }
     });
 }
+
 
 
 function agregarUsuario(req, res) {
