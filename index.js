@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
-const YAML = require('yamljs');
 const usuariosRoutes = require('./routes/usuarios.controller');
 
 const app = express();
