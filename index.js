@@ -58,7 +58,7 @@ const swaggerOptions = {
       "/usuarios": {
         
         get: {
-          tags: ["Usuarios"],
+          tags: ["Consulta de Usuarios"],
           summary: "Obtener todos los usuarios o uno específico",
           description: "Retorna todos los usuarios si no se especifica un ID, o uno solo si se proporciona.",
           parameters: [
@@ -109,6 +109,7 @@ const swaggerOptions = {
           }
         },
         post: {
+          tags: ["Agregar Usuario"],
           summary: "Crear un usuario",
           description: "Registra un nuevo usuario. Todos los campos son requeridos.",
           requestBody: {
@@ -147,6 +148,7 @@ const swaggerOptions = {
           }
         },
         put: {
+          tags: ["Actualizacion de Usuario"],
           summary: "Actualizar un usuario existente",
           description: "Actualiza los datos de un usuario usando su ID (en query).",
           parameters: [
@@ -192,6 +194,7 @@ const swaggerOptions = {
           }
         },
         delete: {
+          tags: ["Eliminar Usuario"],
           summary: "Eliminar un usuario por ID",
           description: "Elimina un usuario de la base de datos usando su ID.",
           parameters: [
