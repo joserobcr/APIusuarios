@@ -49,27 +49,66 @@ exports.agregarUsuario = async (req, res) => {
 };
 
 exports.modificarUsuario = async (req, res) => {
-  const { id } = req.params;
+  const id = req.query.id_usuario;  // cambio aquí
   const { nombre, correo, contrasena, rol } = req.body;
+
   try {
-    const [resultado] = await db.query(
-      'UPDATE usuarios SET nombre = ?, correo = ?, contrasena = ?, rol = ? WHERE id_usuario = ?',
-      [nombre, correo, contrasena, rol, id]
-    );
-    if (resultado.affectedRows === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
+    // Aquí solo actualizamos los campos que llegan (si vienen undefined no los ponemos)
+    // Para evitar poner campos undefined, construimos dinámicamente:
+    let campos = [];
+    let valores = [];
+
+    if (nombre !== undefined) {
+      campos.push('nombre = ?');
+      valores.push(nombre);
+    }
+    if (correo !== undefined) {
+      campos.push('correo = ?');
+      valores.push(correo);
+    }
+    if (contrasena !== undefined) {
+      campos.push('contrasena = ?');
+      valores.push(contrasena);
+    }
+    if (rol !== undefined) {
+      campos.push('rol = ?');
+      valores.push(rol);
+    }
+
+    if (campos.length === 0) {
+      return res.status(400).json({ error: 'No se enviaron campos para actualizar' });
+    }
+
+    valores.push(id); // para el WHERE
+
+    const sql = `UPDATE usuarios SET ${campos.join(', ')} WHERE id_usuario = ?`;
+
+    const [resultado] = await db.query(sql, valores);
+
+    if (resultado.affectedRows === 0)
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+
     res.json({ mensaje: 'Usuario actualizado' });
+
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Error al actualizar usuario' });
   }
 };
 
 exports.eliminarUsuario = async (req, res) => {
-  const { id } = req.params;
+  const id = req.query.id_usuario;  // cambio aquí
   try {
     const [resultado] = await db.query('DELETE FROM usuarios WHERE id_usuario = ?', [id]);
-    if (resultado.affectedRows === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    if (resultado.affectedRows === 0)
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+
     res.json({ mensaje: 'Usuario eliminado' });
+
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Error al eliminar usuario' });
   }
 };
+
