@@ -11,7 +11,13 @@ router.get('/',
     if (!errores.isEmpty()) {
       return res.status(400).json({ errores: errores.array() });
     }
-    usuarioController.consultarUsuario(req, res, next);
+
+    if(req.query.id_usuario) {
+        usuarioController.consultarUsuarioPorId(req, res, next);
+    }
+    else {
+        usuarioController.consultarUsuario(req, res, next);
+    }
   }
 );
 

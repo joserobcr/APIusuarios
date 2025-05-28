@@ -24,9 +24,10 @@ exports.consultarUsuarioPorId = async (req, res) => {
     return res.status(400).json({ errores: errores.array() });
   }
 
-  const { id } = req.params;
+  const id = req.query.id_usuario;
+
   try {
-    const [rows] = await db.query('SELECT * FROM usuarios WHERE id = ?', [id]);
+    const [rows] = await db.query('SELECT * FROM usuarios WHERE id_usuario = ?', id);
     if (rows.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
     res.json(rows[0]);
   } catch (err) {
