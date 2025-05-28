@@ -1,14 +1,14 @@
 const express = require('express');
 const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
-const usuariosRoutes = require('./routes/usuarios.controller');
+const usuariosRoutes = require('./Router/usuarioRouter.js');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Swagger
+// Swagger embebido directamente
 const swaggerDocument = {
   openapi: '3.0.0',
   info: {
@@ -42,20 +42,18 @@ const swaggerDocument = {
                 type: 'object',
                 properties: {
                   nombre: { type: 'string', example: 'Juan Pérez' },
-                  correo: { type: 'string', example: 'juan@example.com' }
+                  correo: { type: 'string', example: 'juan@example.com' },
+                  contrasena: { type: 'string', example: 'secreta123' },
+                  rol: { type: 'string', example: 'admin' }
                 },
-                required: ['nombre', 'correo']
+                required: ['nombre', 'correo', 'contrasena', 'rol']
               }
             }
           }
         },
         responses: {
-          201: {
-            description: 'Usuario creado'
-          },
-          400: {
-            description: 'Datos inválidos'
-          }
+          201: { description: 'Usuario creado' },
+          400: { description: 'Datos inválidos' }
         }
       }
     },
@@ -63,12 +61,7 @@ const swaggerDocument = {
       get: {
         summary: 'Obtener un usuario por ID',
         parameters: [
-          {
-            name: 'id',
-            in: 'path',
-            required: true,
-            schema: { type: 'integer' }
-          }
+          { name: 'id', in: 'path', required: true, schema: { type: 'integer' } }
         ],
         responses: {
           200: { description: 'Usuario encontrado' },
@@ -78,12 +71,7 @@ const swaggerDocument = {
       put: {
         summary: 'Actualizar un usuario',
         parameters: [
-          {
-            name: 'id',
-            in: 'path',
-            required: true,
-            schema: { type: 'integer' }
-          }
+          { name: 'id', in: 'path', required: true, schema: { type: 'integer' } }
         ],
         requestBody: {
           required: true,
@@ -93,8 +81,11 @@ const swaggerDocument = {
                 type: 'object',
                 properties: {
                   nombre: { type: 'string', example: 'Carlos Gómez' },
-                  correo: { type: 'string', example: 'carlos@example.com' }
-                }
+                  correo: { type: 'string', example: 'carlos@example.com' },
+                  contrasena: { type: 'string', example: 'nueva1234' },
+                  rol: { type: 'string', example: 'usuario' }
+                },
+                required: ['nombre', 'correo', 'contrasena', 'rol']
               }
             }
           }
@@ -107,12 +98,7 @@ const swaggerDocument = {
       delete: {
         summary: 'Eliminar un usuario',
         parameters: [
-          {
-            name: 'id',
-            in: 'path',
-            required: true,
-            schema: { type: 'integer' }
-          }
+          { name: 'id', in: 'path', required: true, schema: { type: 'integer' } }
         ],
         responses: {
           200: { description: 'Usuario eliminado' },
@@ -124,10 +110,10 @@ const swaggerDocument = {
 };
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-// Rutas
 app.use('/usuarios', usuariosRoutes);
 
 app.listen(3000, () => {
   console.log('Servidor iniciado en http://localhost:3000');
 });
+
+module.exports = app;

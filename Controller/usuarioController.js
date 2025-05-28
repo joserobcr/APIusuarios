@@ -1,7 +1,13 @@
-const express = require('express');
-const { body, validationResult, param } = require('express-validator');
-const router = express.Router();
-const db = require('../db');
+require('dotenv').config();
+const mysql = require('mysql2');
+const halson = require('halson');
+
+const connection = mysql.createConnection({
+    host: process.env.DB_HOST, 
+    user: process.env.DB_USER, 
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+});
 
 // Obtener todos los usuarios
 router.get('/', async (req, res) => {
