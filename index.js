@@ -83,11 +83,11 @@ const swaggerOptions = {
                             items: {
                               type: "object",
                               properties: {
-                                idUsuario: { type: "integer", example: 1 },
-                                nombre: { type: "string", example: "Juan Perez" },
-                                correo: { type: "string", example: "juan@mail.com" },
-                                contrasena: { type: "string", example: "********" },
-                                rol: { type: "string", example: "alumno" },
+                                id: { type: "integer" },
+                                nombre: { type: "string" },
+                                correo: { type: "string" },
+                                contrasena: { type: "string" },
+                                rol: { type: "string" },
                                 _links: {
                                   type: "object",
                                   properties: {
@@ -281,9 +281,8 @@ const swaggerOptions = {
       }
     }
   },
-  apis: []
+  apis: [] // Puedes usar archivos separados y documentar con comentarios Swagger si lo deseas
 };
-
 
 
 
