@@ -82,4 +82,58 @@ function agregarUsuario(req, res) {
     });
 }
 
-module.exports = { consultarUsuario, agregarUsuario };
+function modificarUsuario(req, res) {
+    const idUsuario = req.params.id;
+    const { nombre, correo, contrasena, rol, activo } = req.body;
+
+    const consulta = `UPDATE usuarios SET nombre = ?, correo = ?, contrasena = ?, rol = ?, activo = ? WHERE idUsuario = ?`;
+
+    connection.query(consulta, [nombre, correo, contrasena, rol, activo, idUsuario], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: "Error al actualizar el usuario", detalle: err.message });
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ mensaje: "Usuario no encontrado" });
+        }
+
+        const respuesta = halson({
+            mensaje: "Usuario actualizado correctamente",
+            idUsuario: idUsuario
+        })
+        .addLink('self', `/usuarios/${idUsuario}`);
+
+        res.json(respuesta);
+    });
+}
+
+function eliminarUsuario(req, res) {
+    const idUsuario = req.params.id;
+
+    const consulta = `DELETE FROM usuarios WHERE idUsuario = ?`;
+
+    connection.query(consulta, [idUsuario], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: "Error al eliminar el usuario", detalle: err.message });
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ mensaje: "Usuario no encontrado" });
+        }
+
+        const respuesta = halson({
+            mensaje: "Usuario eliminado correctamente",
+            idUsuario: idUsuario
+        });
+
+        res.json(respuesta);
+    });
+}
+
+
+module.exports = {
+    consultarUsuario,
+    agregarUsuario,
+    modificarUsuario,
+    eliminarUsuario
+};
