@@ -51,21 +51,21 @@ const swaggerOptions = {
     servers: [
       {
         url: "https://apiusuarios-production-c528.up.railway.app",
-        description: "Servidor local de desarrollo"
+        description: "Servidor en Railway"
       }
     ],
     paths: {
       "/usuarios": {
         get: {
-          summary: "Consultar usuarios",
-          description: "Devuelve todos los usuarios o uno específico si se proporciona un ID.",
+          summary: "Obtener todos los usuarios o uno específico",
+          description: "Retorna todos los usuarios si no se especifica un ID, o uno solo si se proporciona.",
           parameters: [
             {
               name: "id_usuario",
               in: "query",
-              description: "ID del usuario a buscar (opcional)",
+              description: "ID del usuario a buscar",
               required: false,
-              schema: { type: "integer", example: 10 }
+              schema: { type: "integer", example: 1 }
             }
           ],
           responses: {
@@ -86,16 +86,8 @@ const swaggerOptions = {
                                 id_usuario: { type: "integer", example: 1 },
                                 nombre: { type: "string", example: "Juan Perez" },
                                 correo: { type: "string", example: "juan@mail.com" },
-                                contrasena: { type: "string", example: "********" },
-                                rol: { type: "string", example: "alumno" },
-                                _links: {
-                                  type: "object",
-                                  properties: {
-                                    self: { type: "string", example: "/usuarios/1" },
-                                    editar: { type: "string", example: "/usuarios/1/editar" },
-                                    eliminar: { type: "string", example: "/usuarios/1/eliminar" }
-                                  }
-                                }
+                                contrasena: { type: "string", example: "1234" },
+                                rol: { type: "string", example: "alumno" }
                               }
                             }
                           }
@@ -111,45 +103,32 @@ const swaggerOptions = {
                   }
                 }
               }
-            },
-            "500": { description: "Error interno del servidor" }
-          },
-          "x-codeSamples": [
-            {
-              lang: "javascript",
-              label: "JavaScript",
-              source: "fetch('http://localhost:3001/usuarios')\n  .then(response => response.json())\n  .then(data => console.log(data));"
-            },
-            {
-              lang: "python",
-              label: "Python",
-              source: "import http.client\n\nconn = http.client.HTTPConnection(\"localhost\", 3001)\nconn.request(\"GET\", \"/usuarios\")\nresponse = conn.getresponse()\nprint(response.read().decode())"
             }
-          ]
+          }
         },
         post: {
           summary: "Crear un usuario",
-          description: "Registra un nuevo usuario en la base de datos.",
+          description: "Registra un nuevo usuario. Todos los campos son requeridos.",
           requestBody: {
             required: true,
             content: {
               "application/json": {
                 schema: {
                   type: "object",
+                  required: ["nombre", "correo", "contrasena", "rol"],
                   properties: {
-                    nombre: { type: "string" },
-                    correo: { type: "string" },
-                    contrasena: { type: "string" },
-                    rol: { type: "string" }
-                  },
-                  required: ["nombre", "correo", "contrasena", "rol"]
+                    nombre: { type: "string", example: "Maria Lopez" },
+                    correo: { type: "string", example: "maria@mail.com" },
+                    contrasena: { type: "string", example: "abcd1234" },
+                    rol: { type: "string", example: "docente" }
+                  }
                 }
               }
             }
           },
           responses: {
             "201": {
-              description: "Usuario creado exitosamente",
+              description: "Usuario creado correctamente",
               content: {
                 "application/json": {
                   schema: {
@@ -162,32 +141,19 @@ const swaggerOptions = {
                 }
               }
             },
-            "400": { description: "Datos inválidos" },
-            "500": { description: "Error interno del servidor" }
-          },
-          "x-codeSamples": [
-            {
-              lang: "javascript",
-              label: "JavaScript",
-              source: "fetch('http://localhost:3001/usuarios', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify({ nombre: 'Juan', correo: 'juan@mail.com', contrasena: '1234', rol: 'alumno' })\n})\n.then(response => response.json())\n.then(data => console.log(data));"
-            },
-            {
-              lang: "python",
-              label: "Python",
-              source: "import http.client\nimport json\n\nconn = http.client.HTTPConnection(\"localhost\", 3001)\npayload = json.dumps({\"nombre\": \"Juan\", \"correo\": \"juan@mail.com\", \"contrasena\": \"1234\", \"rol\": \"alumno\"})\nheaders = {'Content-Type': 'application/json'}\nconn.request(\"POST\", \"/usuarios\", payload, headers)\nres = conn.getresponse()\ndata = res.read()\nprint(data.decode(\"utf-8\"))"
-            }
-          ]
+            "400": { description: "Datos inválidos" }
+          }
         },
         put: {
-          summary: "Actualizar usuario",
-          description: "Actualiza los datos de un usuario existente.",
+          summary: "Actualizar un usuario existente",
+          description: "Actualiza los datos de un usuario usando su ID (en query).",
           parameters: [
             {
               name: "id_usuario",
               in: "query",
-              description: "ID del usuario a actualizar",
               required: true,
-              schema: { type: "integer", example: 1 }
+              description: "ID del usuario a actualizar",
+              schema: { type: "integer", example: 2 }
             }
           ],
           requestBody: {
@@ -197,10 +163,10 @@ const swaggerOptions = {
                 schema: {
                   type: "object",
                   properties: {
-                    nombre: { type: "string" },
-                    correo: { type: "string" },
-                    contrasena: { type: "string" },
-                    rol: { type: "string" }
+                    nombre: { type: "string", example: "Pedro Ramírez" },
+                    correo: { type: "string", example: "pedro@mail.com" },
+                    contrasena: { type: "string", example: "5678" },
+                    rol: { type: "string", example: "admin" }
                   }
                 }
               }
@@ -220,32 +186,19 @@ const swaggerOptions = {
                 }
               }
             },
-            "404": { description: "Usuario no encontrado" },
-            "500": { description: "Error interno del servidor" }
-          },
-          "x-codeSamples": [
-            {
-              lang: "javascript",
-              label: "JavaScript",
-              source: "fetch('http://localhost:3001/usuarios?id=1', {\n  method: 'PUT',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify({ nombre: 'Nuevo nombre', correo: 'nuevo@mail.com', contrasena: 'abcd', rol: 'alumno' })\n})\n.then(response => response.json())\n.then(data => console.log(data));"
-            },
-            {
-              lang: "python",
-              label: "Python",
-              source: "import http.client\nimport json\n\nconn = http.client.HTTPConnection(\"localhost\", 3001)\npayload = json.dumps({\"nombre\": \"Nuevo nombre\", \"correo\": \"nuevo@mail.com\", \"contrasena\": \"abcd\", \"rol\": \"alumno\"})\nheaders = {'Content-Type': 'application/json'}\nconn.request(\"PUT\", \"/usuarios?id=1\", payload, headers)\nres = conn.getresponse()\ndata = res.read()\nprint(data.decode(\"utf-8\"))"
-            }
-          ]
+            "404": { description: "Usuario no encontrado" }
+          }
         },
         delete: {
-          summary: "Eliminar un usuario",
-          description: "Elimina un usuario por ID.",
+          summary: "Eliminar un usuario por ID",
+          description: "Elimina un usuario de la base de datos usando su ID.",
           parameters: [
             {
               name: "id_usuario",
               in: "query",
-              description: "ID del usuario a eliminar",
               required: true,
-              schema: { type: "integer", example: 1 }
+              description: "ID del usuario a eliminar",
+              schema: { type: "integer", example: 3 }
             }
           ],
           responses: {
@@ -262,27 +215,15 @@ const swaggerOptions = {
                 }
               }
             },
-            "404": { description: "Usuario no encontrado" },
-            "500": { description: "Error interno del servidor" }
-          },
-          "x-codeSamples": [
-            {
-              lang: "javascript",
-              label: "JavaScript",
-              source: "fetch('http://localhost:3001/usuarios?id=1', {\n  method: 'DELETE'\n})\n.then(response => response.json())\n.then(data => console.log(data));"
-            },
-            {
-              lang: "python",
-              label: "Python",
-              source: "import http.client\n\nconn = http.client.HTTPConnection(\"localhost\", 3001)\nconn.request(\"DELETE\", \"/usuarios?id=1\")\nresponse = conn.getresponse()\nprint(response.read().decode())"
-            }
-          ]
+            "404": { description: "Usuario no encontrado" }
+          }
         }
       }
     }
   },
   apis: []
 };
+
 
 
 
