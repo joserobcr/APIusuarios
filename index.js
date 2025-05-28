@@ -88,7 +88,14 @@ const swaggerOptions = {
                                 correo: { type: "string", example: "juan@mail.com" },
                                 contrasena: { type: "string", example: "********" },
                                 rol: { type: "string", example: "alumno" },
-                                
+                                _links: {
+                                  type: "object",
+                                  properties: {
+                                    self: { type: "string", example: "/usuarios/1" },
+                                    editar: { type: "string", example: "/usuarios/1/editar" },
+                                    eliminar: { type: "string", example: "/usuarios/1/eliminar" }
+                                  }
+                                }
                               }
                             }
                           }
