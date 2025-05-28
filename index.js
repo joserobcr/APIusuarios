@@ -1,6 +1,9 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, 'VariablesDeEntorno/.env') });
 const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
 const usuariosRoutes = require('./Router/usuarioRouter.js');
 
 const app = express();
