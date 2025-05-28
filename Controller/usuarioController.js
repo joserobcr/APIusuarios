@@ -22,20 +22,7 @@ function consultarUsuario(req, res) {
             return res.status(404).json({ mensaje: 'No se encontraron usuarios' });
         }
 
-        const usuarios = results.map(user => {
-            const estadoMensaje = user.activo ? "El usuario está activo" : "El usuario está inactivo";
-
-            return halson({
-                idUsuario: user.idUsuario,
-                nombre: user.nombre,
-                correo: user.correo,
-                rol: user.rol,
-                estado: estadoMensaje
-            })
-            .addLink('self', `/usuarios/${user.idUsuario}`)
-            .addLink('editar', `/usuarios/${user.idUsuario}`)
-            .addLink('eliminar', `/usuarios/${user.idUsuario}`);
-        });
+        
 
         return res.json({ usuarios });
     });
@@ -56,18 +43,8 @@ function consultarUsuarioPorId(req, res) {
         }
 
         const user = results[0];
-        const estadoMensaje = user.activo ? "El usuario está activo" : "El usuario está inactivo";
 
-        const usuario = halson({
-            idUsuario: user.idUsuario,
-            nombre: user.nombre,
-            correo: user.correo,
-            rol: user.rol,
-            estado: estadoMensaje
-        })
-        .addLink('self', `/usuarios/${user.idUsuario}`)
-        .addLink('editar', `/usuarios/${user.idUsuario}`)
-        .addLink('eliminar', `/usuarios/${user.idUsuario}`);
+       
 
         res.json(usuario);
     });
